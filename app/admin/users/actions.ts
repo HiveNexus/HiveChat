@@ -1,5 +1,5 @@
 'use server';
-import { users } from '@/app/db/schema';
+import { users, llmSettingsTable, userLlmSettings } from '@/app/db/schema';
 import { db } from '@/app/db';
 import { desc, eq } from 'drizzle-orm';
 import { auth } from "@/auth";
@@ -20,7 +20,7 @@ export async function getUserList() {
   }
 }
 
-export async function addUser(userBasicInfo: { email: string, password: string, isAdmin: boolean }) {
+export async function addUser(userBasicInfo: { email: string, password: string, isAdmin: boolean, llmProviders?: string[] }) {
   const session = await auth();
   if (!session?.user.isAdmin) {
     throw new Error('not allowed');
@@ -44,7 +44,17 @@ export async function addUser(userBasicInfo: { email: string, password: string, 
       email: userBasicInfo.email,
       password: hashedPassword,
       isAdmin: userBasicInfo.isAdmin,
-    });
+    })
+      .returning()
+    if (userBasicInfo.llmProviders) {
+      for (const provider of userBasicInfo.llmProviders) {
+        await db.insert(userLlmSettings)
+          .values({
+            userId: result[0].id,
+            llmProvider: provider,
+          })
+      }
+    }
     return {
       success: true,
     }
@@ -75,7 +85,7 @@ export async function deleteUser(email: string) {
   }
 }
 
-export async function updateUser(email: string, userBasicInfo: { email: string, password?: string, isAdmin: boolean }) {
+export async function updateUser(email: string, userBasicInfo: { email: string, password?: string, isAdmin: boolean, llmProviders?: string[] }) {
   const session = await auth();
   if (!session?.user.isAdmin) {
     throw new Error('not allowed');
@@ -111,6 +121,16 @@ export async function updateUser(email: string, userBasicInfo: { email: string, 
         })
         .where(eq(users.email, email));
     }
+    if (userBasicInfo.llmProviders) {
+      await db.delete(userLlmSettings).where(eq(userLlmSettings.userId, existingUser.id));
+      for (const provider of userBasicInfo.llmProviders) {
+        await db.insert(userLlmSettings)
+          .values({
+            userId: existingUser.id,
+            llmProvider: provider,
+          })
+      }
+    }
     return {
       success: true,
       message: '用户信息已更新',
@@ -120,5 +140,41 @@ export async function updateUser(email: string, userBasicInfo: { email: string, 
       success: false,
       message: 'database delete error'
     }
+  }
+}
+
+export async function getLlmSettings() {
+  const session = await auth();
+  if (!session?.user.isAdmin) {
+    throw new Error('not allowed');
+  }
+  try {
+    return await db.select().from(llmSettingsTable)
+      .where(eq(llmSettingsTable.isActive, true))
+  } catch (error) {
+    throw new Error('Failed to fetch LLM settings');
+  }
+}
+
+export async function getUserLlmSettings(email: string) {
+  const session = await auth();
+  if (!session?.user.isAdmin) {
+    throw new Error('not allowed');
+  }
+  try {
+    const user = await db.query.users.findFirst({
+      where: eq(users.email, email),
+    });
+    if (!user) {
+      return [];
+    }
+    const result = await db
+      .select({ llmProvider: userLlmSettings.llmProvider })
+      .from(userLlmSettings)
+      .where(eq(userLlmSettings.userId, user.id));
+    return result.map(r => r.llmProvider)
+  } catch (error) {
+    throw new Error('Failed to fetch user LLM settings');
+
   }
 }

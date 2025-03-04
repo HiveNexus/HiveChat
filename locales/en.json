@@ -196,7 +196,8 @@
       "deleteUserSuccess": "Deleted successfully",
       "addUserSuccess": "Added successfully",
       "updateUserSuccess": "Updated successfully",
-      "editUser": "Edit User Info"
+      "editUser": "Edit User Info",
+      "assignProvider": "Assign Provider"
     },
     "System": {
       "system": "System Settings",

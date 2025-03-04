@@ -1,8 +1,8 @@
 'use server';
 import { db } from '@/app/db';
-import { eq, and, asc } from 'drizzle-orm';
+import { eq, and, asc, inArray } from 'drizzle-orm';
 import { LLMModel } from '@/app/adapter/interface';
-import { llmSettingsTable, llmModels } from '@/app/db/schema';
+import { llmSettingsTable, llmModels, userLlmSettings } from '@/app/db/schema';
 import { llmModelTypeWithAllInfo } from '@/app/db/schema';
 import { getLlmConfigByProvider } from '@/app/utils/llms';
 import { auth } from '@/auth';
@@ -86,7 +86,21 @@ export const fetchAvailableProviders = async () => {
   return availableProviders;
 }
 
+const getUserProviders = async () => {
+  const session = await auth();
+  if(!session?.user) {
+    return [];
+  }
+  const result = await db.select({
+    llmProvider: userLlmSettings.llmProvider
+  })
+  .from(userLlmSettings)
+  .where(eq(userLlmSettings.userId, session.user.id))
+  return result.map((item) => item.llmProvider);
+}
+
 export const fetchAvailableLlmModels = async () => {
+  const userProviders = await getUserProviders();
   const result = await db
     .select()
     .from(llmSettingsTable)
@@ -98,7 +112,8 @@ export const fetchAvailableLlmModels = async () => {
     .where(
       and(
         eq(llmSettingsTable.isActive, true),
-        eq(llmModels.selected, true)
+        eq(llmModels.selected, true),
+        inArray(llmSettingsTable.provider, userProviders),
       )
     );
   const llmModelList: llmModelTypeWithAllInfo[] | null = result

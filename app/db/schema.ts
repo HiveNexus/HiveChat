@@ -210,6 +210,18 @@ export const bots = pgTable("bots", {
   deleteAt: timestamp('delete_at'),
 });
 
+export const userLlmSettings = pgTable("user_llm_settings", {
+  userId: text().notNull().references(() => users.id, { onDelete: 'cascade' }),
+  llmProvider: varchar({ length: 255 }).notNull().references(()=> llmSettingsTable.provider, { onDelete: 'cascade' }),
+},
+(userLlmSettings) => [
+  {
+    compositePK: primaryKey({
+      columns: [userLlmSettings.userId, userLlmSettings.llmProvider],
+    }),
+  }
+])
+
 export interface BotType {
   id?: number;
   title: string;

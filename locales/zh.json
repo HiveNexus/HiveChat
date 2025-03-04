@@ -196,7 +196,8 @@
       "deleteUserSuccess": "删除成功",
       "addUserSuccess": "添加成功",
       "updateUserSuccess": "更新成功",
-      "editUser": "编辑用户"
+      "editUser": "编辑用户",
+      "assignProvider": "分配服务商"
     },
     "System": {
       "system": "系统设置",

@@ -1,26 +1,27 @@
 'use client';
 import React, { useEffect, useState } from 'react'
-import { getUserList, addUser, updateUser, deleteUser } from './actions';
-import { Tag, Button, Modal, Form, Input, Switch, Divider, message, Skeleton } from 'antd';
-import { UserType } from '@/app/db/schema';
+import { getUserList, addUser, updateUser, deleteUser, getLlmSettings, getUserLlmSettings } from './actions';
+import { Tag, Button, Modal, Form, Input, Switch, Divider, message, Skeleton, Checkbox } from 'antd';
+import { UserType, llmModelType, llmSettingsType } from '@/app/db/schema';
 import { useTranslations } from 'next-intl';
 
 type FormValues = {
   email: string;
   password: string;
   isAdmin: boolean;
+  llmProviders: string[]
 }
 
 const UserListPage = () => {
   const t = useTranslations('Admin.Users');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [llmList, setLlmList] = useState<llmSettingsType[]>([]);
   const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false);
   const [userList, setUserList] = useState<UserType[]>([]);
   const [userFetchStatus, setUserFetchStatus] = useState(true);
   const [passwordVisible, setPasswordVisible] = React.useState(false);
   const [form] = Form.useForm();
   const [editForm] = Form.useForm();
-
   const showAddUserModal = () => {
     setIsModalOpen(true);
   };
@@ -52,6 +53,14 @@ const UserListPage = () => {
     fetchUserList();
   }, []);
 
+  useEffect(() => {
+    const fetchLlmList = async (): Promise<void> => {
+      const llmList = await getLlmSettings();
+      setLlmList(llmList);
+    }
+    fetchLlmList();
+  }, [])
+
   const onFinish = async (values: FormValues) => {
     const result = await addUser(values);
     if (result.success) {
@@ -66,7 +75,10 @@ const UserListPage = () => {
   };
 
   const onEditUserFinish = async (values: FormValues) => {
-    const result = await updateUser(values.email, values);
+    const result = await updateUser(values.email, {
+      ...values,
+      llmProviders: values.llmProviders
+    });
     if (result.success) {
       const userList = await getUserList();
       setUserList(userList);
@@ -79,11 +91,15 @@ const UserListPage = () => {
   };
 
   const handleEditUser = async (userInfo: UserType) => {
-    editForm.setFieldsValue({
-      'email': userInfo.email,
-      'isAdmin': userInfo.isAdmin,
-    })
+    const userLlms = await getUserLlmSettings(userInfo.email as string)
     setIsEditUserModalOpen(true);
+    setTimeout(() => {
+      editForm.setFieldsValue({
+        'email': userInfo.email,
+        'isAdmin': userInfo.isAdmin,
+        'llmProviders': userLlms
+      });
+    }, 0);
   }
 
   const handleDeleteUser = async (email: string) => {
@@ -179,6 +195,18 @@ const UserListPage = () => {
           <Form.Item label={<span className='font-medium'>{t('roleAdmin')}</span>} name='isAdmin'>
             <Switch defaultChecked={false} value={false} />
           </Form.Item>
+          <Form.Item label={t('assignProvider')} name='llmProviders'>
+            <Checkbox.Group>
+              <div>
+                {llmList.map((llm) => (
+                  <Checkbox
+                    key={llm.provider}
+                    value={llm.provider}
+                  >{llm.providerName}</Checkbox>
+                ))}
+              </div>
+            </Checkbox.Group>
+          </Form.Item>
         </Form>
       </Modal>
 
@@ -195,11 +223,23 @@ const UserListPage = () => {
           validateTrigger='onBlur'
         >
           <Form.Item label={<span className='font-medium'>Email</span>} name='email'
-            rules={[{ required: true, message: t('emailNotice') }, { type: 'email', message:  t('emailNotice') }]}>
+            rules={[{ required: true, message: t('emailNotice') }, { type: 'email', message: t('emailNotice') }]}>
             <Input type='email' disabled />
           </Form.Item>
           <Form.Item label={<span className='font-medium'>{t('roleAdmin')}</span>} name='isAdmin'>
             <Switch defaultChecked={false} value={false} />
+          </Form.Item>
+          <Form.Item label={t('assignProvider')} name='llmProviders'>
+            <Checkbox.Group>
+              <div>
+                {llmList.map((llm) => (
+                  <Checkbox
+                    key={llm.provider}
+                    value={llm.provider}
+                  >{llm.providerName}</Checkbox>
+                ))}
+              </div>
+            </Checkbox.Group>
           </Form.Item>
         </Form>
       </Modal>
