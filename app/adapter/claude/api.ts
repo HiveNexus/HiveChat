@@ -52,7 +52,7 @@ export default class ClaudeApi implements LLMApi {
               source: {
                 type: "base64",
                 media_type: item.mimeType || 'image/jpeg',
-                data: item.data
+                data: item.data.substring(item.data.indexOf(",") + 1)
               }
             };
           }

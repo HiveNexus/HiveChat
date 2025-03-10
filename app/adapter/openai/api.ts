@@ -30,6 +30,7 @@ export default class ChatGPTApi implements LLMApi {
   private answer = '';
   private reasoning_content = '';
   private finished = false;
+  private isThinking = false;
   prepareMessage<OpenaiMessageType>(messages: RequestMessage[]): OpenaiMessageType[] {
     return messages.map(msg => {
       // 处理文本消息
@@ -148,11 +149,31 @@ export default class ChatGPTApi implements LLMApi {
             const json = JSON.parse(text);
             const deltaContent = json?.choices[0]?.delta?.content;
             const deltaReasoningContent = json?.choices[0]?.delta?.reasoning_content;
-            if (deltaContent) {
-              this.answer += deltaContent;
-            }
             if (deltaReasoningContent) {
               this.reasoning_content += deltaReasoningContent;
+            }
+            if (!this.isThinking) {
+              if (deltaContent.startsWith("<think>")) {
+                this.isThinking = true;
+                const thinkContent = deltaContent.slice(7).trim();
+                if (thinkContent) {
+                  this.reasoning_content += thinkContent;
+                }
+              } else {
+                this.answer += deltaContent;
+              }
+            } else {
+              if (deltaContent.endsWith("</think>")) {
+                this.isThinking = false;
+                const thinkContent = deltaContent.slice(0, -8).trim();
+                if (thinkContent) {
+                  this.reasoning_content += thinkContent;
+                }
+              } else {
+                if(deltaContent.trim()){
+                  this.reasoning_content += deltaContent;
+                }
+              }
             }
             options.onUpdate({
               content: this.answer,

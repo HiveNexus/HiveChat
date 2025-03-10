@@ -25,6 +25,7 @@ export default async function proxyOpenAiStream(response: Response,
       let promptTokens = null;
       let completionTokens = null;
       let totalTokens = null;
+      let isThinking = false;
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -46,8 +47,28 @@ export default async function proxyOpenAiStream(response: Response,
             const { delta, finish_reason } = parsedData.choices[0];
             const usage = parsedData.usage || parsedData.choices[0].usage; // 兼容 Moonshot
             const { content, reasoning_content } = delta;
-            if (content) {
-              completeResponse += content;
+            if (!isThinking) {
+              if (content.startsWith("<think>")) {
+                isThinking = true;
+                const thinkContent = content.slice(7).trim();
+                if (thinkContent) {
+                  completeReasonin += thinkContent;
+                }
+              } else {
+                completeResponse += content;
+              }
+            } else {
+              if (content.endsWith("</think>")) {
+                isThinking = false;
+                const thinkContent = content.slice(0, -8).trim();
+                if (thinkContent) {
+                  completeReasonin += thinkContent;
+                }
+              } else {
+                if (content.trim()) {
+                  completeReasonin += content;
+                }
+              }
             }
             if (reasoning_content) {
               completeReasonin += reasoning_content;

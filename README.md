@@ -9,6 +9,7 @@
 
 管理员一人配置，全团队轻松使用各种 AI 模型。
 
+* 支持配置邮箱登录或企业微信、钉钉、飞书登录
 * LaTeX 和 Markdown 渲染
 * DeepSeek 思维链展示
 * 图像理解
@@ -108,8 +109,27 @@ AUTH_SECRET=hclqD3nBpMphLevxGWsUnGU6BaEa2TjrCQ77weOVpPg=
 # 管理员授权码，初始化后，凭此值设置管理员账号，此处为示例，请替换为自己生成的值。
 ADMIN_CODE=22113344
 
-# 生产环境设置为正式域名，测试用时无需修改
+# 生产环境设置为正式域名，开启飞书等第三方登录时回调时会使用
 NEXTAUTH_URL=http://127.0.0.1:3000
+
+是否开启邮箱登录，开启值设为 ON，关闭时修改为 OFF，未设置时默认开启
+EMAIL_AUTH_STATUS=ON
+
+# 是否开启飞书登录，开启值设为 ON，关闭时修改为 OFF，详细说明见底部附2
+FEISHU_AUTH_STATUS=OFF
+FEISHU_CLIENT_ID="cli_xxxxxxxxxxxxxxxx"
+FEISHU_CLIENT_SECRET="xxxxxxxxHOEWIoE7eDc1Lhc0042OXXXX"
+
+# 是否开启企业微信登录，开启值设为 ON，关闭时修改为 OFF
+WECOM_AUTH_STATUS=OFF
+WECOM_CLIENT_ID="ww728c371c2fXXXXXX"
+WECOM_AGENT_ID="100XXXX"
+WECOM_CLIENT_SECRET="H-7J4jzG0m1axpXLGshaCDlMOZxdjvkX6bIVLuXXXXXX"
+
+# 是否开启钉钉登录，开启值设为 ON，关闭时修改为 OFF
+DINGDING_AUTH_STATUS=OFF
+DINGDING_CLIENT_ID="dingpcfi2kpuplXXXXXX"
+DINGDING_CLIENT_SECRET="3vk9-VFCExNckqNUk_CL2F-HEgz7qGN-BimH0lZ1gUx6hWO7g_an2lnkk6XXXXXX"
 ```
 
 4. 初始化数据库
@@ -141,18 +161,49 @@ git clone https://github.com/HiveNexus/hivechat.git
 ```shell
 cp .env.example .env
 ```
-根据实际情况修改 `AUTH_SECRET` 和 `ADMIN_CODE`，正式环境务必重新设置，测试用途时可不修改。
+根据实际情况如下的配置项
+修改 `AUTH_SECRET` 和 `ADMIN_CODE`，正式环境务必重新设置，测试用途时可不修改。
+修改 .env 文件
 
-3. 构建镜像
+```env
+# PostgreSQL 数据库连接 URL，Docker 部署时可留空
+DATABASE_URL=
+
+#用于用户信息等敏感信息的加密，可以使用 openssl rand -base64 32 生成一个随机的 32 位字符串作为密钥，此处为示例，请替换为自己生成的值，测试用途时可不修改。
+AUTH_SECRET=hclqD3nBpMphLevxGWsUnGU6BaEa2TjrCQ77weOVpPg=
+
+# 管理员授权码，初始化后，凭此值设置管理员账号，此处为示例，请替换为自己生成的值。
+ADMIN_CODE=22113344
+
+# 生产环境设置为正式域名，开启飞书等第三方登录时回调时会使用
+NEXTAUTH_URL=http://127.0.0.1:3000
+
+# 是否开启邮箱登录，开启值设为 ON，关闭时修改为 OFF，未设置时默认开启
+EMAIL_AUTH_STATUS=ON
+
+# 是否开启飞书登录，开启值设为 ON，关闭时修改为 OFF，详细说明见底部附2
+FEISHU_AUTH_STATUS=OFF
+FEISHU_CLIENT_ID="cli_xxxxxxxxxxxxxxxx"
+FEISHU_CLIENT_SECRET="xxxxxxxxHOEWIoE7eDc1Lhc0042OXXXX"
+
+# 是否开启企业微信登录，开启值设为 ON，关闭时修改为 OFF
+WECOM_AUTH_STATUS=OFF
+WECOM_CLIENT_ID="ww728c371c2fXXXXXX"
+WECOM_AGENT_ID="100XXXX"
+WECOM_CLIENT_SECRET="H-7J4jzG0m1axpXLGshaCDlMOZxdjvkX6bIVLuXXXXXX"
+
+# 是否开启钉钉登录，开启值设为 ON，关闭时修改为 OFF
+DINGDING_AUTH_STATUS=OFF
+DINGDING_CLIENT_ID="dingpcfi2kpuplXXXXXX"
+DINGDING_CLIENT_SECRET="3vk9-VFCExNckqNUk_CL2F-HEgz7qGN-BimH0lZ1gUx6hWO7g_an2lnkk6XXXXXX"
 ```
-docker compose build
-```
-5. 启动容器
+
+3. 启动容器
 ```   
 docker compose up -d
 ```
 
-6. 初始化管理员账号
+4. 初始化管理员账号
    
 访问 `http://localhost:3000/setup` (实际使用的域名和端口号)，即可进入管理员账号设置页面，设置完成后，即可正常使用系统。
 
@@ -164,7 +215,7 @@ docker compose up -d
 
 点击下面的按钮，即可开始部署。
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/HiveNexus/hivechat.git&project-name=hivechat&env=DATABASE_URL&env=AUTH_SECRET&env=ADMIN_CODE)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/HiveNexus/hivechat.git&project-name=hivechat&env=DATABASE_URL&env=AUTH_SECRET&env=ADMIN_CODE&env=EMAIL_AUTH_STATUS&env=FEISHU_AUTH_STATUS&env=FEISHU_CLIENT_ID&env=FEISHU_CLIENT_SECRET)
 
 默认将代码克隆的自己的 Github 后，需要填写环境变量：
 
@@ -179,8 +230,31 @@ AUTH_SECRET=hclqD3nBpMphLevxGWsUnGU6BaEa2TjrCQ77weOVpPg=
 
 # 管理员授权码，初始化后，凭此值设置管理员账号，此处为示例，请替换为自己生成的值。
 ADMIN_CODE=22113344
+
+# 生产环境设置为正式域名，开启飞书等第三方登录时回调时会使用
+# 首次可使用 `https://Vercel中的项目名.vercel.app`
+NEXTAUTH_URL=https://hivechat-xxx.vercel.app
+
+是否开启邮箱登录，开启值设为 ON，关闭时设为 OFF
+EMAIL_AUTH_STATUS=ON
+
+# 是否开启飞书登录，开启值设为 ON，关闭时修改为 OFF，详细说明见底部附2
+FEISHU_AUTH_STATUS=OFF
+FEISHU_CLIENT_ID="cli_xxxxxxxxxxxxxxxx"
+FEISHU_CLIENT_SECRET="xxxxxxxxHOEWIoE7eDc1Lhc0042OXXXX"
+
+# 是否开启企业微信登录，开启值设为 ON，关闭时修改为 OFF
+WECOM_AUTH_STATUS=OFF
+WECOM_CLIENT_ID="ww728c371c2fXXXXXX"
+WECOM_AGENT_ID="100XXXX"
+WECOM_CLIENT_SECRET="H-7J4jzG0m1axpXLGshaCDlMOZxdjvkX6bIVLuXXXXXX"
+
+# 是否开启钉钉登录，开启值设为 ON，关闭时修改为 OFF
+DINGDING_AUTH_STATUS=OFF
+DINGDING_CLIENT_ID="dingpcfi2kpuplXXXXXX"
+DINGDING_CLIENT_SECRET="3vk9-VFCExNckqNUk_CL2F-HEgz7qGN-BimH0lZ1gUx6hWO7g_an2lnkk6XXXXXX"
 ```
-#### 附：Vercel（Neon）PostgreSQL 配置
+#### 附1：Vercel（Neon）PostgreSQL 配置
 
 1. 在 Vercel 平台顶部导航，选择「Storage」标签，点击 Create Databse
 2. 选择 Neon(Serverless Postgres)
@@ -192,3 +266,8 @@ ADMIN_CODE=22113344
 4. 初始化管理员账号
 
 按照以上方法安装部署完成后，访问 `http://localhost:3000/setup` (实际使用的域名和端口号)，即可进入管理员账号设置页面，设置完成后，即可正常使用系统。
+
+#### 附2：第三方登录配置说明
+* [企业微信登录配置说明](https://k2swpw8zgf.feishu.cn/wiki/WBH5w6mcuiYui0kNhmecdxtqnac)
+* [钉钉登录配置说明](https://k2swpw8zgf.feishu.cn/wiki/PcLVwBMcsiCm8Ikcp3pc7rVXn3f)
+* [飞书登录配置说明](https://k2swpw8zgf.feishu.cn/wiki/Fr80wA8HHi7ZN7kxb6xcU1i7nae)

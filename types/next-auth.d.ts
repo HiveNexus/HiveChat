@@ -6,7 +6,8 @@ declare module "next-auth" {
       id: string;
       name: string;
       email: string;
-      isAdmin?: boolean; // 扩展 isAdmin 字段
+      provider: string;
+      isAdmin?: boolean;
     }
   }
 
@@ -14,13 +15,14 @@ declare module "next-auth" {
     id: string;
     name: string;
     email: string;
-    isAdmin?: boolean; // 扩展 isAdmin 字段
+    isAdmin?: boolean;
   }
 
   interface JWT {
     id: string;
     name?: string;
     email?: string;
-    isAdmin?: boolean; // 扩展 isAdmin 字段
+    provider: string;
+    isAdmin?: boolean;
   }
 }

@@ -43,7 +43,7 @@ const ResponsingMessage = (props: {
                         : <span className='ml-1'>{t('thinking')}</span>
                       }
                     </div>
-                    <div className='border-l-2 border-gray-200 px-2 mt-2 leading-6 text-gray-400'>
+                    <div className='border-l-2 border-gray-200 px-2 mt-2 leading-5 text-gray-400'>
                       <MarkdownRender content={props.responseMessage.reasoning_content as string} />
                     </div>
                   </div>}

@@ -1,27 +1,26 @@
 'use client';
 import React, { useEffect, useState } from 'react'
-import { getUserList, addUser, updateUser, deleteUser, getLlmSettings, getUserLlmSettings } from './actions';
-import { Tag, Button, Modal, Form, Input, Switch, Divider, message, Skeleton, Checkbox } from 'antd';
-import { UserType, llmModelType, llmSettingsType } from '@/app/db/schema';
+import { getUserList, addUser, updateUser, deleteUser } from './actions';
+import { Tag, Button, Modal, Form, Input, Switch, Divider, message, Skeleton } from 'antd';
+import { UserType } from '@/app/db/schema';
 import { useTranslations } from 'next-intl';
 
 type FormValues = {
   email: string;
   password: string;
   isAdmin: boolean;
-  llmProviders: string[]
 }
 
 const UserListPage = () => {
   const t = useTranslations('Admin.Users');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [llmList, setLlmList] = useState<llmSettingsType[]>([]);
   const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false);
   const [userList, setUserList] = useState<UserType[]>([]);
   const [userFetchStatus, setUserFetchStatus] = useState(true);
   const [passwordVisible, setPasswordVisible] = React.useState(false);
   const [form] = Form.useForm();
   const [editForm] = Form.useForm();
+
   const showAddUserModal = () => {
     setIsModalOpen(true);
   };
@@ -53,14 +52,6 @@ const UserListPage = () => {
     fetchUserList();
   }, []);
 
-  useEffect(() => {
-    const fetchLlmList = async (): Promise<void> => {
-      const llmList = await getLlmSettings();
-      setLlmList(llmList);
-    }
-    fetchLlmList();
-  }, [])
-
   const onFinish = async (values: FormValues) => {
     const result = await addUser(values);
     if (result.success) {
@@ -75,10 +66,7 @@ const UserListPage = () => {
   };
 
   const onEditUserFinish = async (values: FormValues) => {
-    const result = await updateUser(values.email, {
-      ...values,
-      llmProviders: values.llmProviders
-    });
+    const result = await updateUser(values.email, values);
     if (result.success) {
       const userList = await getUserList();
       setUserList(userList);
@@ -91,15 +79,11 @@ const UserListPage = () => {
   };
 
   const handleEditUser = async (userInfo: UserType) => {
-    const userLlms = await getUserLlmSettings(userInfo.email as string)
+    editForm.setFieldsValue({
+      'email': userInfo.email,
+      'isAdmin': userInfo.isAdmin,
+    })
     setIsEditUserModalOpen(true);
-    setTimeout(() => {
-      editForm.setFieldsValue({
-        'email': userInfo.email,
-        'isAdmin': userInfo.isAdmin,
-        'llmProviders': userLlms
-      });
-    }, 0);
   }
 
   const handleDeleteUser = async (email: string) => {
@@ -126,6 +110,7 @@ const UserListPage = () => {
             <thead>
               <tr className="bg-slate-100">
                 <th className='border-b border-r border-slate-300 p-2'>#</th>
+                <th className='border-b border-r border-slate-300 p-2'>昵称</th>
                 <th className='border-b border-r border-slate-300 p-2'>Email</th>
                 <th className='border-b border-r border-slate-300 p-2'>{t('role')}</th>
                 <th className='border-b border-r border-slate-300 p-2'>{t('registerAt')}</th>
@@ -136,7 +121,8 @@ const UserListPage = () => {
               {userList.map((user, index) => (
                 <tr key={user.id} className="hover:bg-slate-50">
                   <td className='border-t border-r text-center text-sm border-slate-300 p-2'>{index + 1}</td>
-                  <td className='border-t border-r text-sm border-slate-300 p-2'>{user.email}</td>
+                  <td className='border-t border-r text-sm border-slate-300 p-2'>{user.name ? user.name : '-'}</td>
+                  <td className='border-t border-r text-sm border-slate-300 p-2'>{user.email ? user.email : '-'}</td>
                   <td className='border-t border-r text-sm text-center border-slate-300 p-2'>{user.isAdmin ? <Tag color="blue">{t('roleAdmin')}</Tag> : <Tag>{t('roleUser')}</Tag>}</td>
                   <td className='border-t border-r text-sm text-center w-48 border-slate-300 p-2'>{user.createdAt?.toLocaleString('sv-SE')}</td>
                   <td className='border-t text-center text-sm w-32 border-slate-300 p-2'>
@@ -195,18 +181,6 @@ const UserListPage = () => {
           <Form.Item label={<span className='font-medium'>{t('roleAdmin')}</span>} name='isAdmin'>
             <Switch defaultChecked={false} value={false} />
           </Form.Item>
-          <Form.Item label={t('assignProvider')} name='llmProviders'>
-            <Checkbox.Group>
-              <div>
-                {llmList.map((llm) => (
-                  <Checkbox
-                    key={llm.provider}
-                    value={llm.provider}
-                  >{llm.providerName}</Checkbox>
-                ))}
-              </div>
-            </Checkbox.Group>
-          </Form.Item>
         </Form>
       </Modal>
 
@@ -223,23 +197,12 @@ const UserListPage = () => {
           validateTrigger='onBlur'
         >
           <Form.Item label={<span className='font-medium'>Email</span>} name='email'
-            rules={[{ required: true, message: t('emailNotice') }, { type: 'email', message: t('emailNotice') }]}>
+            // rules={[{ required: true, message: t('emailNotice') }, { type: 'email', message:  t('emailNotice') }]}>
+            rules={[{ type: 'email', message:  t('emailNotice') }]}>
             <Input type='email' disabled />
           </Form.Item>
           <Form.Item label={<span className='font-medium'>{t('roleAdmin')}</span>} name='isAdmin'>
             <Switch defaultChecked={false} value={false} />
-          </Form.Item>
-          <Form.Item label={t('assignProvider')} name='llmProviders'>
-            <Checkbox.Group>
-              <div>
-                {llmList.map((llm) => (
-                  <Checkbox
-                    key={llm.provider}
-                    value={llm.provider}
-                  >{llm.providerName}</Checkbox>
-                ))}
-              </div>
-            </Checkbox.Group>
           </Form.Item>
         </Form>
       </Modal>

@@ -21,7 +21,6 @@
     "@icon-park/react": "^1.4.2",
     "@microsoft/fetch-event-source": "^2.0.1",
     "@neondatabase/serverless": "^0.10.4",
-    "@vercel/analytics": "^1.4.1",
     "antd": "^5.23.3",
     "bcryptjs": "^2.4.3",
     "clsx": "^2.1.1",

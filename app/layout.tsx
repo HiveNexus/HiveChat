@@ -2,7 +2,6 @@ import React from 'react';
 import type { Metadata } from "next";
 import type { Viewport } from 'next'
 import { AntdRegistry } from '@ant-design/nextjs-registry';
-import { Analytics } from "@vercel/analytics/react"
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
 import { SessionProvider } from 'next-auth/react';
@@ -39,7 +38,6 @@ export default async function RootLayout({
             <AppPrepare />
               {children}
             </AntdRegistry>
-            <Analytics />
           </SessionProvider>
         </NextIntlClientProvider>
       </body>

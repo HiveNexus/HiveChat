@@ -123,9 +123,14 @@ export const MessageList = (props: { chat_id: string }) => {
   }, [setIsUserScrolling]);
 
   const throttledHandleScroll = useMemo(
-    () => throttle(handleScroll, 100),
+    () => throttle(handleScroll, 100, { leading: true, trailing: true }),
     [handleScroll]
   );
+  useEffect(() => {
+    return () => {
+      throttledHandleScroll.cancel();
+    };
+  }, [throttledHandleScroll]);
 
   return (
     <>

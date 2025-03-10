@@ -50,6 +50,7 @@ export async function POST(req: NextRequest) {
     // Claude 特殊，用 x-apikey
     if (xProvider === 'claude') {
       headers.set('x-api-key', realApikey || '');
+      headers.set('anthropic-version', '2023-06-01'); // 添加必须的版本号
     }
     // 获取请求体
     const body = await req.text();
