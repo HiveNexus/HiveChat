@@ -61,7 +61,7 @@ export async function addUser(userBasicInfo: { email: string, password: string, 
   } catch (error) {
     return {
       success: false,
-      message: 'database delete error'
+      message: 'database add error'
     }
   }
 }
@@ -138,7 +138,7 @@ export async function updateUser(email: string, userBasicInfo: { email: string, 
   } catch (error) {
     return {
       success: false,
-      message: 'database delete error'
+      message: 'database update error'
     }
   }
 }
