@@ -2,7 +2,11 @@
   "Common": {
     "settings": "Settings",
     "confirm": "Confirm",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "all": "All",
+    "edit": "Edit",
+    "delete": "Delete",
+    "ok": "OK"
   },
   "Auth": {
     "login": "Login",
@@ -196,7 +200,18 @@
       "deleteUserSuccess": "Deleted successfully",
       "addUserSuccess": "Added successfully",
       "updateUserSuccess": "Updated successfully",
-      "editUser": "Edit User Info"
+      "editUser": "Edit User Info",
+      "groupManagement": "Group Management",
+      "groupManagementTip": "Use user groups to control which models different users can use.",
+      "addGroup": "Add Group",
+      "groupName": "Group Name",
+      "availableModels": "Available Models",
+      "specificModel": "Specific Model",
+            "deleteConfirmTitle": "Delete Confirmation",
+      "deleteConfirmContent": "Are you sure you want to delete this group? After deletion, all users in this group will be automatically changed to 'Default Group'",
+      "defaultGroup": "Default Group",
+      "defaultGroupCannotDelete": "Default Group cannot be deleted",
+      "deleteGroupSuccess": "Deleted successfully"
     },
     "System": {
       "system": "System Settings",

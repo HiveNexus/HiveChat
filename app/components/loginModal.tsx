@@ -14,6 +14,8 @@ import FeishuLogin from "@/app/components/FeishuLoginButton"
 import WecomLogin from "@/app/components/WecomLoginButton"
 import DingdingLogin from "@/app/components/DingdingLoginButton"
 import { useTranslations } from 'next-intl';
+import useModelListStore from '../store/modelList';
+import { fetchAvailableLlmModels } from '../adapter/actions';
 
 interface LoginFormValues {
   email: string;
@@ -29,7 +31,7 @@ export default function LoginModal() {
   const [isPending, setIsPending] = useState(true);
   const [authProviders, setAuthProviders] = useState<string[]>([]);
   const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
-
+  const { initModelList, setCurrentModel, initAllProviderList } = useModelListStore();
   useEffect(() => {
     const fetchSettings = async () => {
       const resultValue = await fetchAppSettings('isRegistrationOpen');
@@ -53,6 +55,18 @@ export default function LoginModal() {
       console.log(response?.error);
       setError(t('passwordError'));
       return;
+    }
+    const remoteModelList = await fetchAvailableLlmModels();
+    const modelNames = remoteModelList.map(model => model.name);
+    await initModelList(remoteModelList);
+    const lastSelectedModel = localStorage.getItem('lastSelectedModel');
+    if (lastSelectedModel && modelNames.includes(lastSelectedModel)) {
+      setCurrentModel(lastSelectedModel);
+    }
+    else {
+      if (remoteModelList.length > 0) {
+        setCurrentModel(remoteModelList[0].name);
+      }
     }
     hideLogin();
   }

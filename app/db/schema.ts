@@ -12,6 +12,7 @@ import {
 } from "drizzle-orm/pg-core";
 import type { AdapterAccountType } from "next-auth/adapters";
 import { customAlphabet } from 'nanoid';
+import { relations } from "drizzle-orm";
 const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyz', 10)
 
 export const users = pgTable("user", {
@@ -29,6 +30,7 @@ export const users = pgTable("user", {
   emailVerified: timestamp("emailVerified", { mode: "date" }),
   isAdmin: boolean("isAdmin").default(false),
   image: text("image"),
+  groupId: text("groupId"),
   createdAt: timestamp('created_at').defaultNow(),
 })
 
@@ -131,7 +133,10 @@ export const llmModels = pgTable("models", {
   maxTokens: integer(),
   supportVision: boolean('support_vision').default(false),
   selected: boolean('selected').default(true),
-  providerId: varchar({ length: 255 }).notNull(),
+  providerId: varchar({ length: 255 }).notNull().references(() => llmSettingsTable.provider, {
+    onDelete: 'cascade',
+    onUpdate: 'cascade'
+  }),
   providerName: varchar({ length: 255 }).notNull(),
   type: modelType('type').notNull().default('default'),
   order: integer('order').default(1),
@@ -287,3 +292,43 @@ export interface Message {
   errorMessage?: string,
   createdAt: Date;
 }
+export const groupModelType = pgEnum('group_model_type', ['all', 'specific'])
+
+export const groups = pgTable("groups", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  name: text("name").notNull(),
+  modelType: groupModelType('model_type').notNull().default('all'),
+  isDefault: boolean("is_default").default(false),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+})
+
+
+
+export const groupUsers = pgTable("group_users", {
+  groupId: text("groupId").notNull().references(() => groups.id, { onDelete: 'cascade' }),
+  userId: text("userId").notNull().references(() => users.id, { onDelete: 'cascade' }),
+},
+  (groupUsers) => [
+    {
+      compositePK: primaryKey({
+        columns: [groupUsers.groupId, groupUsers.userId],
+      }),
+    }
+  ]
+)
+
+export const groupModels = pgTable("group_models", {
+  groupId: text("groupId").notNull().references(() => groups.id, { onDelete: 'cascade' }),
+  modelId: integer("modelId").notNull().references(() => llmModels.id, { onDelete: 'cascade' }),
+},
+  (groupModels) => [
+    {
+      compositePK: primaryKey({
+        columns: [groupModels.groupId, groupModels.modelId],
+      }),
+    }
+  ]
+)
+
+

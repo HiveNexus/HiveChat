@@ -2,7 +2,11 @@
   "Common": {
     "settings": "设置",
     "confirm": "确认",
-    "cancel": "取消"
+    "cancel": "取消",
+    "all": "全部",
+    "edit": "编辑",
+    "delete": "删除",
+    "ok": "确定"
   },
   "Auth": {
     "login": "登录",
@@ -196,7 +200,18 @@
       "deleteUserSuccess": "删除成功",
       "addUserSuccess": "添加成功",
       "updateUserSuccess": "更新成功",
-      "editUser": "编辑用户"
+      "editUser": "编辑用户",
+      "groupManagement": "分组管理",
+      "groupManagementTip": "使用用户分组，控制不同用户可以使用哪些模型",
+      "addGroup": "添加分组",
+      "groupName": "分组名称",
+      "availableModels": "可使用的模型",
+      "specificModel": "指定模型",
+      "deleteConfirmTitle": "删除提示",
+      "deleteConfirmContent": "确认要删除该分组吗？\n\n删除后该分组下全部用户自动变更为「默认分组」",
+      "defaultGroup": "默认分组",
+      "defaultGroupCannotDelete": "默认分组无法删除",
+      "deleteGroupSuccess": "删除成功"
     },
     "System": {
       "system": "系统设置",

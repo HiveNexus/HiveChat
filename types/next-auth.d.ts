@@ -8,6 +8,7 @@ declare module "next-auth" {
       email: string;
       provider: string;
       isAdmin?: boolean;
+      groupId?: string;
     }
   }
 

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { LLMModel, LLMModelProvider } from '@/app/adapter/interface';
+import { LLMModel, LLMModelProvider, LLMModelRealId } from '@/app/adapter/interface';
 import { llmModelTypeWithAllInfo } from '@/app/db/schema';
 
 interface IModelListStore {
@@ -9,8 +9,10 @@ interface IModelListStore {
   allProviderListByKey: { [key: string]: LLMModelProvider } | null;
   allProviderList: LLMModelProvider[];
   modelList: LLMModel[];
+  modelListRealId: LLMModelRealId[];
   isPending: Boolean;
   setIsPending: (isPending: boolean) => void;
+  initModelListRealId: (initModels: llmModelTypeWithAllInfo[]) => Promise<void>;
   initModelList: (initModels: llmModelTypeWithAllInfo[]) => void;
   setModelList: (newOrderModels: LLMModel[]) => void;
   setAllProviderList: (newProviderList: LLMModelProvider[]) => void; //排序
@@ -44,6 +46,7 @@ const useModelListStore = create<IModelListStore>((set, get) => ({
   allProviderListByKey: null,
   allProviderList: [],
   modelList: [],
+  modelListRealId: [],
   isPending: true,
   setIsPending: (isPending: boolean) => {
     set((state) => ({
@@ -95,6 +98,43 @@ const useModelListStore = create<IModelListStore>((set, get) => ({
       ...state,
       providerList,
       modelList: newData,
+    }));
+
+  },
+  initModelListRealId: async (initModels: llmModelTypeWithAllInfo[]) => {
+    const newData = initModels.map((model) => ({
+      id: model.id,
+      name: model.name,
+      displayName: model.displayName,
+      maxTokens: model.maxTokens || undefined,
+      supportVision: model.supportVision || undefined,
+      selected: model.selected || false,
+      type: model.type ?? 'default',
+      provider: {
+        id: model.providerId,
+        providerName: model.providerName,
+        providerLogo: model.providerLogo,
+      }
+    }));
+
+    const providerList = Array.from(
+      new Map(
+        initModels.map((model) => [
+          model.providerId,
+          {
+            id: model.providerId,
+            providerName: model.providerName,
+            providerLogo: model.providerLogo,
+            status: true,
+          }
+        ])
+      ).values()
+    );
+
+    set((state) => ({
+      ...state,
+      providerList,
+      modelListRealId: newData,
     }));
 
   },

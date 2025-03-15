@@ -1,8 +1,8 @@
 'use server';
 import { db } from '@/app/db';
-import { eq, and, asc } from 'drizzle-orm';
+import { eq, and, asc, inArray } from 'drizzle-orm';
 import { LLMModel } from '@/app/adapter/interface';
-import { llmSettingsTable, llmModels } from '@/app/db/schema';
+import { llmSettingsTable, llmModels, groupModels, groups } from '@/app/db/schema';
 import { llmModelTypeWithAllInfo } from '@/app/db/schema';
 import { getLlmConfigByProvider } from '@/app/utils/llms';
 import { auth } from '@/auth';
@@ -85,8 +85,32 @@ export const fetchAvailableProviders = async () => {
   );
   return availableProviders;
 }
+const getUserModels = async (): Promise<number[]> => {
+  const session = await auth();
+  const userId = session?.user.id;
+  const groupId = session?.user.groupId;
+  if (!userId) return [];
 
-export const fetchAvailableLlmModels = async () => {
+  if (!groupId) {
+    return (await db.query.llmModels.findMany({
+      columns: { id: true }
+    })).map(m => m.id);
+  }
+
+  const group = await db.query.groups.findFirst({
+    where: eq(groups.id, groupId),
+  });
+
+  return group?.modelType === 'all'
+    ? (await db.query.llmModels.findMany({ columns: { id: true } })).map(m => m.id)
+    : (await db.query.groupModels.findMany({
+      where: eq(groupModels.groupId, groupId),
+      columns: { modelId: true },
+    })).map(m => m.modelId);
+
+}
+export const fetchAvailableLlmModels = async (requireAuth: boolean = true): Promise<llmModelTypeWithAllInfo[]> => {
+  const userModels = requireAuth ? new Set(await getUserModels()) : new Set<number>();
   const result = await db
     .select()
     .from(llmSettingsTable)
@@ -98,7 +122,7 @@ export const fetchAvailableLlmModels = async () => {
     .where(
       and(
         eq(llmSettingsTable.isActive, true),
-        eq(llmModels.selected, true)
+        eq(llmModels.selected, true),
       )
     );
   const llmModelList: llmModelTypeWithAllInfo[] | null = result
@@ -110,7 +134,7 @@ export const fetchAvailableLlmModels = async () => {
         providerLogo: i.llm_settings.logo || '',
       }
     })
-    .filter((model) => model !== null);
+    .filter((model) => model !== null && (!requireAuth || userModels.has(model.id)));
   return llmModelList;
 }
 

@@ -6,10 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start -p 3000",
-    "initdb": "npx drizzle-kit push --force &&  npm run db:seedProvider && npm run db:seedModel && npm run db:seedBot",
+    "initdb": "npx drizzle-kit push --force &&  npm run db:seedProvider && npm run db:seedModel && npm run db:seedBot && npm run db:seedGroup",
     "db:seedModel": "tsx ./app/db/modelSeed.ts",
     "db:seedProvider": "tsx ./app/db/providerSeed.ts",
     "db:seedBot": "tsx ./app/db/botSeed.ts",
+    "db:seedGroup": "tsx ./app/db/groupSeed.ts",
     "lint": "next lint"
   },
   "dependencies": {

@@ -63,6 +63,18 @@ export interface LLMModel {
   type?: 'default' | 'custom';
 }
 
+export interface LLMModelRealId {
+  id: number;
+  name: string;
+  displayName: string;
+  apiUrl?: string;
+  maxTokens?: number;
+  supportVision?: boolean;
+  selected?: boolean;
+  provider: LLMModelProvider;
+  type?: 'default' | 'custom';
+}
+
 export interface LLMModelProvider {
   id: string;
   providerName: string;
