@@ -73,6 +73,8 @@
     "clearHistoryMessage": "Clear current session messages",
     "confirmClearHistoryMessage": "Confirm to clear all messages?",
     "clearHistoryMessageNotice": "All messages of the current chat will be deleted.",
+    "addNewChat": "Start a new chat",
+    "confirmAddNewChat": "Start a new chat?",
     "piece": "records",
     "contextCleared": "Context has been cleared.",
     "contentParsingError": "Content parsing error.",

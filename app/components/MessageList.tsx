@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Button, Input, Tooltip, Modal, Popover, Skeleton, message, Image as AntdImage } from "antd";
-import { PictureOutlined, ClearOutlined, FieldTimeOutlined, ArrowUpOutlined } from '@ant-design/icons';
+import { PictureOutlined, ClearOutlined, FieldTimeOutlined, ArrowUpOutlined, PlusSquareOutlined } from '@ant-design/icons';
 import { Square } from '@icon-park/react';
 import Eraser from '@/app/images/eraser.svg'
 import CloseIcon from '@/app/images/close.svg'
@@ -89,6 +89,18 @@ export const MessageList = (props: { chat_id: string }) => {
       cancelText: t('cancel'),
       onOk() {
         clearHistory();
+      },
+      onCancel() { },
+    });
+  }
+
+  const handleNewChat = (): void => {
+    modal.confirm({
+      title: t('confirmAddNewChat'),
+      okText: t('confirm'),
+      cancelText: t('cancel'),
+      onOk() {
+        router.push('/chat');
       },
       onCancel() { },
     });
@@ -246,6 +258,11 @@ export const MessageList = (props: { chat_id: string }) => {
             </Button>
           </div>
           <div className='flex flex-row'>
+            <Tooltip title={t('addNewChat')}>
+              <Button onClick={() => {
+                handleNewChat()
+              }} className='ml-2' type="text" size='small'><PlusSquareOutlined style={{ color: 'gray' }} /></Button>
+            </Tooltip>
             <Tooltip title={t('clearHistoryMessage')}>
               <Button onClick={() => {
                 handleClearHistory()

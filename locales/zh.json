@@ -73,6 +73,8 @@
     "clearHistoryMessage": "清空历史消息",
     "confirmClearHistoryMessage": "确认要清除所有记录吗",
     "clearHistoryMessageNotice": "当前对话的所有记录将被删除",
+    "addNewChat": "开启新对话",
+    "confirmAddNewChat": "是否开启新对话？",
     "piece": "条",
     "contextCleared": "上下文已清除",
     "contentParsingError": "内容解析错误",
