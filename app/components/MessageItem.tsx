@@ -25,7 +25,7 @@ const MessageItem = memo((props: {
     if (Array.isArray(props.item.content) && props.item.content.length > 0) {
       const images = props.item.content.filter((item: any) => item.type === 'image').map((item: any) => item.data);
       setImages(images);
-      const plainText = props.item.content.filter((i) => i.type === 'text').map((it) => it.text).join('')
+      const plainText = props.item.content.filter((i) => i.type === 'text').map((it) => it.text).join('\n\n')
       setPlainText(plainText);
     } else {
       setPlainText(props.item.content as string);
