@@ -14,7 +14,13 @@
     "perPage": "per page",
     "jumpTo": "Jump to",
     "page": "page",
-    "itemsPerPage": "per page"
+    "itemsPerPage": "per page",
+    "previousPage": "Previous page",
+    "nextPage": "Next page",
+    "previous5Pages": "Previous 5 pages",
+    "next5Pages": "Next 5 pages",
+    "previous3Pages": "Previous 3 pages",
+    "next3Pages": "Next 3 pages"
   },
   "Auth": {
     "login": "Login",
@@ -162,7 +168,17 @@
     "editBotTitle": "Edit Bot",
     "editSuccess": "Edit successful",
     "editFailed": "Edit failed",
-    "editFailedRetry": "Edit failed, please retry"
+    "editFailedRetry": "Edit failed, please retry",
+    "backToTop": "Back to top",
+    "clear": "Clear",
+    "searchPlaceholder": "Search bot name or description...",
+    "notFoundWithQuery": "No bots found containing",
+    "noBots": "No bots available",
+    "createFirstBot": "Create your first bot",
+    "botManagement": "Bot Management",
+    "allUsersCanView": "All users can view and use the following bots on the",
+    "discoverBotsPage": "Discover Bots",
+    "page": "page"
   },
   "Settings": {
     "accountSettings": "Account",

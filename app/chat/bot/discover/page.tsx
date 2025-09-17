@@ -10,6 +10,7 @@ import { useSession } from 'next-auth/react';
 import { useLoginModal } from '@/app/contexts/loginModalContext';
 import { useTranslations } from 'next-intl';
 import CustomPagination from '@/app/components/CustomPagination';
+import BackToTop from '@/app/components/BackToTop';
 import { debounce } from 'lodash';
 
 const BotDiscover = () => {
@@ -84,94 +85,107 @@ const BotDiscover = () => {
   };
 
   return (
-    <div className="container max-w-6xl mx-auto p-4">
-      <div className='w-full flex flex-col space-y-4'>
-        <div className='flex flex-row justify-between items-center'>
-          <h1 className='text-xl font-bold'>{t('discoverBots')}</h1>
-          <Link href='/chat/bot/create'>
-            <Button type="primary" icon={<PlusOutlined />} shape='round'>
-              <div className='flex flex-row'>
-                {t('createBot')}
-              </div>
-            </Button>
-          </Link>
-        </div>
-        
-        <div className='flex flex-row items-center space-x-4'>
-          <div className='flex-1'>
-            <Input
-              placeholder="搜索智能体名称或描述..."
-              prefix={<SearchOutlined className="text-gray-400" />}
-              value={searchQuery}
-              onChange={handleSearchChange}
-              size="large"
-              className="rounded-lg"
-              style={{
-                borderRadius: '8px',
-                border: '1px solid #e5e7eb',
-              }}
-            />
+    <div className="h-full flex flex-col overflow-hidden">
+      <div className="flex-shrink-0 bg-white border-b border-gray-200 p-4">
+        <div className='w-full flex flex-col space-y-4 max-w-6xl mx-auto'>
+          <div className='flex flex-row justify-between items-center'>
+            <h1 className='text-xl font-bold'>{t('discoverBots')}</h1>
+            <Link href='/chat/bot/create'>
+              <Button type="primary" icon={<PlusOutlined />} shape='round'>
+                <div className='flex flex-row'>
+                  {t('createBot')}
+                </div>
+              </Button>
+            </Link>
           </div>
-          {searchQuery && (
-            <Button
-              type="text"
-              onClick={() => setSearchQuery('')}
-              className="text-gray-500 hover:text-gray-700"
-            >
-              清除
-            </Button>
-          )}
+          
+          <div className='flex flex-row items-center space-x-4'>
+            <div className='flex-1'>
+              <Input
+                placeholder={t('searchPlaceholder')}
+                prefix={<SearchOutlined className="text-gray-400" />}
+                value={searchQuery}
+                onChange={handleSearchChange}
+                size="large"
+                className="rounded-lg"
+                style={{
+                  borderRadius: '8px',
+                  border: '1px solid #e5e7eb',
+                }}
+              />
+            </div>
+            {searchQuery && (
+              <Button
+                type="text"
+                onClick={() => setSearchQuery('')}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                {t('clear')}
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
-      {isPending ?
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-6">
-          <SkeletonCard />
-          <SkeletonCard />
-          <SkeletonCard />
-          <SkeletonCard />
-        </div>
-        :
-        <>
-          {botList.length === 0 ? (
-            <div className="flex justify-center items-center py-16">
-              <Empty
-                image={Empty.PRESENTED_IMAGE_SIMPLE}
-                description={
-                  <span className="text-gray-500">
-                    {searchQuery ? `未找到包含「${searchQuery}」的智能体` : '暂无智能体'}
-                  </span>
-                }
-              >
-                {!searchQuery && (
-                  <Link href='/chat/bot/create'>
-                    <Button type="primary" icon={<PlusOutlined />}>
-                      创建第一个智能体
-                    </Button>
-                  </Link>
-                )}
-              </Empty>
+      <div className="flex-1 overflow-y-auto" id="bot-list-scroll-container">
+        <div className="container max-w-6xl mx-auto p-4">
+          {isPending ?
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {Array.from({ length: pageSize }, (_, index) => (
+                <SkeletonCard key={index} />
+              ))}
             </div>
-          ) : (
+            :
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-6">
-                {botList.map((item, index) => (
-                  <ServiceCard key={item.id} bot={item} />
-                ))}
-              </div>
-              <CustomPagination
-                current={currentPage}
-                total={total}
-                pageSize={pageSize}
-                onChange={handlePageChange}
-                onShowSizeChange={handleShowSizeChange}
-                loading={isPending}
-                showSizeChanger={true}
-              />
+              {botList.length === 0 ? (
+                <div className="flex justify-center items-center py-16">
+                  <Empty
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    description={
+                      <span className="text-gray-500">
+                        {searchQuery ? `${t('notFoundWithQuery')}「${searchQuery}」的智能体` : t('noBots')}
+                      </span>
+                    }
+                  >
+                    {!searchQuery && (
+                      <Link href='/chat/bot/create'>
+                        <Button type="primary" icon={<PlusOutlined />}>
+                          {t('createFirstBot')}
+                        </Button>
+                      </Link>
+                    )}
+                  </Empty>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {botList.map((item) => (
+                    <ServiceCard key={item.id} bot={item} />
+                  ))}
+                </div>
+              )}
             </>
-          )}
-        </>
-      }
+          }
+        </div>
+      </div>
+
+      {/* 翻页组件固定在底部 */}
+      {!isPending && botList.length > 0 && (
+        <div className="flex-shrink-0 bg-white border-t border-gray-200 p-4">
+          <div className="container max-w-6xl mx-auto">
+            <CustomPagination
+              current={currentPage}
+              total={total}
+              pageSize={pageSize}
+              onChange={handlePageChange}
+              onShowSizeChange={handleShowSizeChange}
+              loading={isPending}
+              showSizeChanger={true}
+            />
+          </div>
+        </div>
+      )}
+      
+      <BackToTop target="#bot-list-scroll-container" />
     </div>
   )
 };

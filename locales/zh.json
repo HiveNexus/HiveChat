@@ -14,7 +14,13 @@
     "perPage": "条/页",
     "jumpTo": "跳至",
     "page": "页",
-    "itemsPerPage": "条/页"
+    "itemsPerPage": "条/页",
+    "previousPage": "上一页",
+    "nextPage": "下一页",
+    "previous5Pages": "向前 5 页",
+    "next5Pages": "向后 5 页",
+    "previous3Pages": "向前 3 页",
+    "next3Pages": "向后 3 页"
   },
   "Auth": {
     "login": "登录",
@@ -162,7 +168,17 @@
     "editBotTitle": "编辑智能体",
     "editSuccess": "编辑成功",
     "editFailed": "编辑失败",
-    "editFailedRetry": "编辑失败，请重试"
+    "editFailedRetry": "编辑失败，请重试",
+    "backToTop": "回到顶部",
+    "clear": "清除",
+    "searchPlaceholder": "搜索智能体名称或描述...",
+    "notFoundWithQuery": "未找到包含",
+    "noBots": "暂无智能体",
+    "createFirstBot": "创建第一个智能体",
+    "botManagement": "智能体管理",
+    "allUsersCanView": "所有用户在",
+    "discoverBotsPage": "「发现智能体」",
+    "page": "页面都可以查看和使用以下的智能体。"
   },
   "Settings": {
     "accountSettings": "账号设置",
